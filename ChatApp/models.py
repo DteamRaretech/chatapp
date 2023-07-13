@@ -1,30 +1,31 @@
-import pymysql
-from util.DB import DB
+# import:モジュール全体を利用する from:モジュールの一部(関数や変数)を利用する
+import pymysql # pymysqlライブラリを使い、簡単にMySQLへ接続できるようにする
+from util.DB import DB # DB.pyからclass DBを持ってくる
 
 
-class dbConnect:
-    def createUser(user):
-        try:
-            conn = DB.getConnection()
-            cur = conn.cursor()
-            sql = "INSERT INTO users (uid, user_name, email, password) VALUES (%s, %s, %s, %s);"
-            cur.execute(sql, (user.uid, user.name, user.email, user.password))
-            conn.commit()
-        except Exception as e:
+class dbConnect: # pythonでmysqlに接続するクラスを作成
+    def createUser(user): # 関数：ユーザ作成
+        try: #例外が発生する可能性のある処理を記述→例外処理を捕捉するとexcept節の動作へ
+            conn = DB.getConnection() # DBに接続する
+            cur = conn.cursor() # mysqlからカーソルを取り出し、sql文を発行できるようにする
+            sql = "INSERT INTO users (uid, user_name, email, password) VALUES (%s, %s, %s, %s);" # SQLを動的に作成
+            cur.execute(sql, (user.uid, user.name, user.email, user.password)) # SQLを実行(この時点では処理行数を返すだけ)
+            conn.commit() # DBと接続したOBJに対してINSERTの処理後、コミット(更新確定)
+        except Exception as e: #except 例外名 as 変数名、Exceptionはすべての組み込み例外の基底クラス(非推奨)
             print(e + 'が発生しています')
             abort(500)
-        finally:
-            cur.close()
+        finally: # 例外処理の有無に関わらず、常に最後に行う処理
+            cur.close() # コネクタをクローンし全ての処理が完了
 
 
-    def getUserId(email):
+    def getUserId(email): # 関数：ユーザemailをもとにユーザID取得
         try:
             conn = DB.getConnection()
             cur = conn.cursor()
             sql = "SELECT uid FROM users WHERE email=%s;"
             cur.execute(sql, (email))
             id = cur.fetchone()
-            return id
+            return id # try→finally→try内のreturnの処理順
         except Exception as e:
             print(e + 'が発生しています')
             abort(500)
